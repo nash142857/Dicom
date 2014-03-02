@@ -1,0 +1,36 @@
+#pragma once
+#include "stdafx.h"
+namespace CalParam{
+	int Psetnum;
+	int Pslicenum;
+	int TE;
+	int TR;
+	int STDNum;
+	double ck1;
+	double ck2;
+	double ck3;
+	int TType;
+	double Pmask;
+	double x00;
+	double x01;
+	double x02;
+	double x10;
+	double x11;
+	double x12;
+	double pr;
+	double ro;
+	double hsv;
+	double hlv;
+	int coef;
+	int cbfc;
+	int mttc;
+	int Tmax_th;
+	double VP_th;
+	int Dsetnum;
+	int Dslicenum;
+	int b;
+	double adcmin;
+	double adcmax;
+	double adc_th;
+	double VD_th;
+};
