@@ -25,10 +25,10 @@ protected:
 	void setconfig();
 	DECLARE_MESSAGE_MAP()
 private: 
+	void update_input();
 	shared_ptr <CStatic> explain_label;
 public:
 	static map <string, string> explain;//explain english to chinese
-
 	void init_map(){
 		static bool flag = false;//init flag
 		if(flag)return;
@@ -92,7 +92,73 @@ public:
 	double adcmax;
 	double adc_th;
 	double VD_th;
+	int gethash(){
+		double rt = 0;
+		rt += Psetnum;
+		rt *= 10;
+		rt += Pslicenum; 
+		rt *= 10;
+		rt += TE;
+		rt *= 10;
+		rt += TR;
+		rt *= 10;
+		rt += STDNum;
+		rt *= 10;
+		rt += Pmask;
+		rt *= 10;
+		rt += ck1;
+		rt *= 10;
+		rt += ck2;
+		rt *= 10;
+		rt += ck3;
+		rt *= 10;
+		rt += TType;
+		rt *= 10;
+		rt += x00;
+		rt *= 10;
+		rt += x01;
+		rt *= 10;
+		x02 += x02;
+		rt *= 10;
+		rt += x10;
+		rt *= 10;
+		rt += x11;
+		rt *= 10;
+		rt += x12;
+		rt *= 10;
+		rt += pr;
+		rt *= 10;
+		rt += ro;
+		rt *= 10;
+		rt += hsv;
+		rt *= 10;
+		rt += hlv;
+		rt *= 10;
+		rt += coef;
+		rt *= 10;
+		rt += cbfc;
+		rt *= 10;
+		rt +=mttc;
+		rt *= 10;
+		rt += Tmax_th;
+		rt *= 10;
+		rt += VP_th;
+		rt *= 10;
+		rt += Dsetnum;
+		rt *= 10;
+		rt += b;
+		rt *= 10;
+		rt += adcmin;
+		rt *= 10;
+		rt += adcmax;
+		rt *= 10;
+		rt += adc_th;
+		rt *= 10;
+		rt += VD_th;
+		return (int)rt;
+	}
 	afx_msg void OnBnClickedButton7();
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedButton3();
 };

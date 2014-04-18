@@ -15,7 +15,7 @@ ImageMatrix::ImageMatrix(DcmDataset* dataset)
 	Uint16 bitsStored;
 	const char * name;
 	dataset->findAndGetString(DCM_PatientID,name);
-	patientid = name;
+	patientid.Format(L"%s",name);
 	dataset->findAndGetString(DCM_PatientName,name);
 	patientname = name;
 	dataset->findAndGetUint16(DCM_BitsAllocated,bitsAllocated);

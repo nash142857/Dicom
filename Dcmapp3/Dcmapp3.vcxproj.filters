@@ -84,6 +84,18 @@
     <ClInclude Include="CalParam.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Cshowhelp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Cshowsavepic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Cshowsavpiclocal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Cnamesavefile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dcmapp3.cpp">
@@ -132,6 +144,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Login.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cshowhelp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cshowsavepic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cshowsavpiclocal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cnamesavefile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

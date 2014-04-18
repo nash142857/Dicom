@@ -21,6 +21,7 @@ public:
 	shared_ptr <Cplist> getlist(){
 		return m_rs;
 	}
+	void update_checktime(const string & pid, const CTime & now);
 private:
 	CDatabase m_db;
 	shared_ptr <Cplist> m_rs;

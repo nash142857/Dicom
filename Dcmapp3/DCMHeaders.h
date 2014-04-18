@@ -1,3 +1,4 @@
+#pragma once
 #include "dcmtk\dcmdata\dcfilefo.h"
 #include "dcmtk\dcmimgle\dcmimage.h"
 #include "dcmtk\dcmimage\diregist.h"

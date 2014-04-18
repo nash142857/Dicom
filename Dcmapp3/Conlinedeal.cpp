@@ -41,27 +41,41 @@ BOOL Conlinedeal::OnInitDialog()
 	person_inf.InsertColumn( 2, L"检查时间",LVCFMT_LEFT, 200);
 	person_inf.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
 	person_inf.InsertColumn( 3, L"最后一次计算时间",LVCFMT_LEFT, 200);
-	
+	vector <Patient_information> res;
+	std::shared_ptr <ADOConn> getcon = ADOConn::sharedSingleton();
+	res = getcon -> search_both("", "");
+	std::sort(res.begin(), res.end(), [](const Patient_information & a, const Patient_information & b)
+	-> bool {
+		return a.modifytime < b.modifytime;
+	});
+	person_inf.DeleteAllItems();
+	for(size_t i = 0; i < res.size(); ++i){
+		int nrow = person_inf.InsertItem(0, res[i].id);
+		person_inf.SetItemText(nrow, 1, res[i].name);
+		person_inf.SetItemText(nrow, 2, res[i].modifytime.Format("%Y-%m-%d-%H:%M:%S"));
+		person_inf.SetItemText(nrow, 3, res[i].modifytime.Format("%Y-%m-%d-%H:%M:%S"));
+	}
 	return TRUE;  
-}
-bool cmp(const Patient_information & a, const Patient_information & b){
-	return a.modifytime > b.modifytime;
 }
 void Conlinedeal::OnBnClickedButton3()
 {
-	person_inf.DeleteAllItems();
 	patient_id = GetDlgItemInt(IDC_EDIT2);
 	GetDlgItemText(IDC_EDIT1, patient_name);
 	CStringA sta(patient_name.GetBuffer(0));
 	std::string name(sta.GetBuffer(0));
 	patient_name.ReleaseBuffer();
 	sta.ReleaseBuffer();
-	std::string id = ito_string(patient_id);
+	std::string id = CommonLib::ito_string(patient_id);
+	if(id == "0") id = ""; //some inner change
 	std::shared_ptr <ADOConn> getcon = ADOConn::sharedSingleton();
 	bool search_flag = true;
 	vector <Patient_information> res;
 	res = getcon -> search_both(id, name);
-	std::sort(res.begin(), res.end(), cmp);
+	std::sort(res.begin(), res.end(),[](const Patient_information & a, const Patient_information & b)
+	-> bool {
+		return a.modifytime < b.modifytime;
+	});
+	person_inf.DeleteAllItems();
 	if(res.size() == 0)	
 			search_flag = false;
 	if(search_flag){
@@ -96,10 +110,17 @@ void Conlinedeal::OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult)
 			string id = str.GetBuffer(0);
 			str.ReleaseBuffer();
 			Patient_information res = con -> search(id,0);
-			
 			CShowCalProcess cal;
-			if(cal.DoModal() == IDOK){	
-				shared_ptr <DCMPatientInfo> show_patient = get_patient_info(res);		
+			cal.DoModal();
+			if(CShowCalProcess::finished){// shared  variable
+				// update the database
+				SYSTEMTIME now;
+				GetLocalTime(&now);
+				CTime cnowtime(int(now.wYear), int(now.wMonth),int(now.wDay), int(now.wHour),int(now.wMinute), int(now.wSecond));   
+				std::shared_ptr <ADOConn> singleton = ADOConn::sharedSingleton();
+				singleton -> update_checktime(id , cnowtime);
+				//to show person
+				shared_ptr <DCMPatientInfo> show_patient = CommonLib::get_patient_info(res);		
 				Cshowperson p = Cshowperson();
 				p.setdata(show_patient, id);
 				p.DoModal();
@@ -114,27 +135,28 @@ void Conlinedeal::OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult)
 int CALLBACK comparemethod(LPARAM a, LPARAM b, LPARAM pa){
 	std::pair<std::pair<int, int>, CListCtrl *> param = *(std::pair<std::pair<int, int>, CListCtrl *> *)(pa);
 	CListCtrl * person_list = param.second;
-	string s1 = wstr_to_stdstring(person_list -> GetItemText(a, param.first.second).AllocSysString());
-	string s2 = wstr_to_stdstring(person_list -> GetItemText(b, param.first.second).AllocSysString());
+	string s1 = CommonLib::wstr_to_stdstring(person_list -> GetItemText(a, param.first.second).AllocSysString());
+	string s2 = CommonLib::wstr_to_stdstring(person_list -> GetItemText(b, param.first.second).AllocSysString());
 	int sort = param.first.first;
 	int ia, ib;
 	CTime ta,tb;
 	switch(param.first.second){
 	case 0:
-		ia = string_to_i(s1);
-		ib = string_to_i(s2);
+		ia = CommonLib::string_to_i(s1);
+		ib = CommonLib::string_to_i(s2);
 		if(sort)
 			return ia < ib;
 		else
 			return ia > ib;
-	case 1: 
+	case 1:
+	case 3: 
 			   if(sort)
 				   return s1 < s2;
 			   else
 				   return s1 > s2;
 	case 2:
-		ta = string_to_ctime(s1);
-		tb = string_to_ctime(s2);
+		ta = CommonLib::string_to_ctime(s1);
+		tb = CommonLib::string_to_ctime(s2);
 		if(sort) 
 			return ta < tb;
 		else

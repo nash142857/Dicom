@@ -9,6 +9,7 @@ bool *flags;
 #define PWI_TYPE	100
 #define DWI_TYPE	101
 
+#define no_pwi
 DCMPatientInfo::~DCMPatientInfo(void)
 {
 	if(mDWIImageList != NULL) delete[] mDWIImageList;
@@ -30,6 +31,7 @@ DCMPatientInfo::DCMPatientInfo(DcmDataset** DWIDataSet, const int& DWICount, Dcm
 	mDWIHeight = mDWIImageList[0]->getRows();
 	mPatientID = mDWIImageList[0]->getid();
 	mPatientName  = mDWIImageList[0] ->getname();
+#ifndef no_pwi
 	mPWINum = PWICount;
 	mPWIImageList = (ImageMatrix**)malloc(PWICount * sizeof(ImageMatrix*));
 	for (int i = 0; i < PWICount; i++) {
@@ -38,12 +40,12 @@ DCMPatientInfo::DCMPatientInfo(DcmDataset** DWIDataSet, const int& DWICount, Dcm
 	}
 	mPWIWidth = mPWIImageList[0]->getColumns();
 	mPWIHeight = mPWIImageList[0]->getRows();
+#endif
 }
 
 double DCMPatientInfo::getDWIVolumn()
 {
 	if (mDWIVolumn > 0) return mDWIVolumn;
-
 	flags = (bool *)malloc(sizeof(bool) * mDWIWidth * mDWIHeight * mDWINum);
 	memset(flags,false,sizeof(bool) * mDWIWidth * mDWIHeight * mDWINum);
 	ImageMatrix *image = mDWIImageList[0];
@@ -58,9 +60,17 @@ double DCMPatientInfo::getDWIVolumn()
 				if (!flags[index]) {
 					int count = 0;
 					queue.clear();
-					floodFill(i, j, k, &count, DWI_TYPE);
-					if (volumnCompare(unitVolumn, count, DWI_TYPE))
+					vector <int> res; // bfs point
+					floodFill(i, j, k, &count, DWI_TYPE, res);
+					if (volumnCompare(unitVolumn, count, DWI_TYPE)){
 						sum+=count;
+						for(const int & tIndex : res){ // render the pixel 
+							int tImageIndex = tIndex / (mDWIWidth * mDWIHeight);
+							int tRow = tIndex % (mDWIWidth * mDWIHeight) / mDWIWidth;
+							int tColumn = tIndex % (mDWIWidth * mDWIHeight) % mDWIWidth;
+							mDWIImageList[tImageIndex] -> setUint16Pixel(tRow, tColumn, 10000); // for special render
+						}
+					}
 					count = 0;
 				}
 			}
@@ -72,6 +82,9 @@ double DCMPatientInfo::getDWIVolumn()
 
 double DCMPatientInfo::getPWIVolumn()
 {
+#ifdef no_pwi
+	return -1;
+#endif
 	if (mPWIVolumn > 0) return mPWIVolumn;
 
 	flags = (bool *)malloc(sizeof(bool) * mPWIWidth * mPWIHeight * mPWINum);
@@ -84,6 +97,7 @@ double DCMPatientInfo::getPWIVolumn()
 	Float64 unitVolumn = unitHeight * pixelArea / 1000;
 
 	double sum = 0;
+	vector <int> res;
 	for (int i = 0; i < mPWINum; i++){
 		for(int j = 0; j < mPWIWidth; j++)
 			for (int k = 0; k < mPWIHeight; k++) {
@@ -91,7 +105,7 @@ double DCMPatientInfo::getPWIVolumn()
 				if (!flags[index]) {
 					int count = 0;
 					queue.clear();
-					floodFill(i, j, k, &count, PWI_TYPE);
+					floodFill(i, j, k, &count, PWI_TYPE, res);
 					if(volumnCompare(unitVolumn, count, PWI_TYPE))
 						sum+=count;
 					count = 0;
@@ -107,9 +121,8 @@ double DCMPatientInfo::getPWIVolumn()
 bool DCMPatientInfo::volumnCompare(Float64 unitVolumn, int count, int type)
 {
 	if (count == 0) return false;
-
 	if (type == PWI_TYPE) return unitVolumn * count >= 1;
-	else return unitVolumn * count >= 3;// 1和3都是假定的值
+	else return unitVolumn * count >= 1;// 1和1都是假定的值
 }
 
 int DCMPatientInfo::getIndex(int imageIndex, int row, int column, int type)
@@ -124,8 +137,9 @@ int DCMPatientInfo::getIndex(int imageIndex, int row, int column, int type)
 	}
 }
 
-void DCMPatientInfo::floodFill(int imageIndex, int row, int column, int *count, int type)
+void DCMPatientInfo::floodFill(int imageIndex, int row, int column, int *count, int type, vector <int> & res) 
 {
+	res.clear();
 	int index = getIndex(imageIndex, row, column, type);
 	if (!flags[index] && check(index, type)){
 		queue.push_back(index);
@@ -145,6 +159,7 @@ void DCMPatientInfo::floodFill(int imageIndex, int row, int column, int *count, 
 	}
 	while (!queue.empty()) {
 		int tIndex = queue.front();
+		res.push_back(tIndex);	//push_back bfs point
 		int tImageIndex = tIndex / (width * height);
 		int tRow = tIndex % (width * height) / width;
 		int tColumn = tIndex % (width * height) % width;
@@ -222,9 +237,9 @@ bool DCMPatientInfo::checkADC(int index)
 	ImageMatrix *image = mDWIImageList[tImageIndex];
 	int pixel = image->getUint16Pixel(tRow, tColumn);
 	
-	if (pixel > 600 && pixel < 60000) {
+	if (pixel < 600 && pixel > 100) { // 这个根据阈值的区间改变
 		//render
-		image->setUint16Pixel(tRow, tColumn, 5000);//为了显示需求
+		//image->setUint16Pixel(tRow, tColumn, 5000);
 		return true;
 	}
 	else return false;

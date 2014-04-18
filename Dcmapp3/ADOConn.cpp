@@ -36,6 +36,7 @@ vector<Patient_information> ADOConn::search_both(const string & id, const string
 		AfxMessageBox(e->m_strError);
 	}
 	vector <Patient_information> res;
+	if(m_rs -> IsEOF()) return res;
 	m_rs -> MoveFirst();
 	while(!m_rs -> IsEOF()){
 		res.push_back(Patient_information(m_rs -> m_modifytime, m_rs -> m_pid, m_rs -> m_pname, m_rs -> m_pdir, m_rs -> m_pwicount, m_rs -> m_dwicount));
@@ -76,7 +77,7 @@ bool ADOConn::exist(const string & search, bool flag) const{
 		else{
 			m_rs->Open();
 		}
-		if(flag){
+		if(!flag){
 			if(m_rs -> m_pid == search.c_str())
 				return true;
 			else
@@ -94,6 +95,23 @@ bool ADOConn::exist(const string & search, bool flag) const{
 		AfxMessageBox(e->m_strError);
 		return false;
 	}
+}
+void ADOConn::update_checktime(const string & pid, const CTime & now){
+	try{
+		if(!exist(pid, false)){
+			AfxMessageBox(L"没有这个id，内部错误");
+			return;
+		}
+		else{
+			m_rs -> Edit();
+		}
+		m_rs -> m_modifytime = now;
+		m_rs -> Update();
+	}
+	catch(CDBException * e){
+		AfxMessageBox(e -> m_strError);
+	}
+	
 }
 vector <Patient_information> ADOConn::search_range(const string & id, bool flag){
 	if(!flag)

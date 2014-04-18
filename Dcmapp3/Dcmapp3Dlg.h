@@ -106,4 +106,7 @@ public:
 	afx_msg void OnBnClickedButton4();
 	CButton login_button;
 	CStatic welcome;
+	CButton onlinebutton;
+	CButton offlinebutton;
+	CButton setbutton;
 };

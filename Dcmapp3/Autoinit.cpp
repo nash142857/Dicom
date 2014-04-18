@@ -3,9 +3,9 @@
 #include "Autoinit.h"
 #include "ADOConn.h"
 #include "common.h"
-const char * Autoinit::basedirname = "F:\\research\\";
-const char * Autoinit::lastmodify = "F:\\research\\last_modify.txt";
-#define All_file "F:\\research\\*"
+const char * Autoinit::basedirname = "E:\\research\\";
+const char * Autoinit::lastmodify = "E:\\research\\last_modify.txt";
+#define All_file "E:\\research\\*"
 void Autoinit::init(){
 	try{
 		std::vector <std::pair<std::string, CTime> > res;
@@ -14,8 +14,8 @@ void Autoinit::init(){
 		for(auto i = res.begin(); i != res.end(); ++i){
 			const string patient_dir = basedirname + i -> first;
 			std::string name = ImageMatrix::get_patientname(patient_dir);
-			int pwicount = getfilenum(basedirname + i -> first + "\\MTT");
-			int dwicount = getfilenum(basedirname + i -> first + "\\ADC");
+			int pwicount = CommonLib::getfilenum(basedirname + i -> first + "\\MTT");
+			int dwicount = CommonLib::getfilenum(basedirname + i -> first + "\\ADC");
 			dbmanager -> addPatient(i -> first, name, patient_dir, pwicount, dwicount, i -> second);
 		}
 		save_modify();
@@ -41,7 +41,7 @@ void Autoinit::getdir(std::vector <std::pair<std::string, CTime> > & res){
 			FileTimeToSystemTime(&tmp, &lastwritetime);
 			CTime ctimelastwritetime(int(lastwritetime.wYear), int(lastwritetime.wMonth),int(lastwritetime.wDay), int(lastwritetime.wHour),int(lastwritetime.wMinute), int(lastwritetime.wSecond));   
 			if(cmp(fileinfo.ftLastWriteTime, lastmod)){
-				res.push_back(std::make_pair(wstr_to_stdstring(fileinfo.cFileName), ctimelastwritetime));
+				res.push_back(std::make_pair(CommonLib::wstr_to_stdstring(fileinfo.cFileName), ctimelastwritetime));
 			}
 		}
 	}while(FindNextFile(handle, &fileinfo));

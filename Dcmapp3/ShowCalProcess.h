@@ -37,5 +37,5 @@ public:
 	afx_msg void OnBnClickedButton1();
 	CButton cancel_button;
 	handle_t handle;
-	bool finished;
+	static bool finished;
 };

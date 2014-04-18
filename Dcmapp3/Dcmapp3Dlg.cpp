@@ -7,6 +7,8 @@
 #include "Dcmapp3Dlg.h"
 #include "afxdialogex.h"
 #include "Login.h"
+#include "Cshowhelp.h"
+#include "Autoinit.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -62,6 +64,9 @@ void CDcmapp3Dlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_BUTTON4, login_button);
 	DDX_Control(pDX, IDC_EDIT9, welcome);
+	DDX_Control(pDX, IDC_BUTTON2, onlinebutton);
+	DDX_Control(pDX, IDC_BUTTON1, offlinebutton);
+	DDX_Control(pDX, IDC_BUTTON9, setbutton);
 }
 
 BEGIN_MESSAGE_MAP(CDcmapp3Dlg, CDialogEx)
@@ -118,7 +123,20 @@ BOOL CDcmapp3Dlg::OnInitDialog()
 	// 设置此对话框的图标。当应用程序主窗口不是对话框时，框架将自动
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
-	SetIcon(m_hIcon, FALSE);		// 设置小图标	
+	SetIcon(m_hIcon, FALSE);		// 设置小图标
+	// first to show the online window
+	if(pon == NULL){
+		pon.reset(new Conlinedeal(this));
+		pon->Create(IDD_DIALOG2);
+		pon->SetParent(this);//设置dialog1为父窗口
+		CRect pos;
+		GetDlgItem(IDC_STATIC) -> GetWindowRect(pos);
+		ScreenToClient(&pos);
+		pon -> MoveWindow(pos);
+	}
+	pon->ShowWindow(SW_SHOW);
+	onlinebutton.EnableWindow(false);
+	Autoinit::init();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 void CDcmapp3Dlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -170,7 +188,9 @@ HCURSOR CDcmapp3Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 void CDcmapp3Dlg::OnBnClickedButton3()
-{	// TODO: 在此添加控件通知处理程序代码
+{
+	Cshowhelp helper;
+	helper.DoModal();
 }
 
 
@@ -187,9 +207,14 @@ void CDcmapp3Dlg::OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CDcmapp3Dlg::OnBnClickedButton2()
 {
-	if(poff != NULL) poff -> ShowWindow(SW_HIDE);
-	if(pparam != NULL)
+	if(poff != NULL){
+		poff -> ShowWindow(SW_HIDE);
+		offlinebutton.EnableWindow(true);
+	}
+	if(pparam != NULL){
 		pparam -> ShowWindow(SW_HIDE);
+		setbutton.EnableWindow(true);
+	}
 	if(pon == NULL){
 		pon.reset(new Conlinedeal(this));
 		pon->Create(IDD_DIALOG2);
@@ -200,16 +225,21 @@ void CDcmapp3Dlg::OnBnClickedButton2()
 		pon -> MoveWindow(pos);
 	}
 	pon->ShowWindow(SW_SHOW);
+	onlinebutton.EnableWindow(false);
 	// TODO: 在此添加控件通知处理程序代码
 }
 
 
 void CDcmapp3Dlg::OnBnClickedButton1()
 {
-	if(pon != NULL)
+	if(pon != NULL){
 		pon -> ShowWindow(SW_HIDE);
-	if(pparam != NULL)
+		onlinebutton.EnableWindow(true);
+	}
+	if(pparam != NULL){
 		pparam -> ShowWindow(SW_HIDE);
+		setbutton.EnableWindow(true);
+	}
 	if(poff == NULL){
 		poff.reset(new Cofflinedeal(this));
 		poff -> Create(IDD_DIALOG3);
@@ -220,15 +250,21 @@ void CDcmapp3Dlg::OnBnClickedButton1()
 		poff -> MoveWindow(pos);
 	}
 	poff -> ShowWindow(SW_SHOW);
+	offlinebutton.EnableWindow(false);
 	// TODO: 在此添加控件通知处理程序代码
 }
 
 
 void CDcmapp3Dlg::OnBnClickedButton9()
 {
-	if(poff != NULL) poff -> ShowWindow(SW_HIDE);
-	if(pon != NULL)
+	if(pon != NULL){
 		pon -> ShowWindow(SW_HIDE);
+		onlinebutton.EnableWindow(true);
+	}
+	if(poff != NULL){
+		poff -> ShowWindow(SW_HIDE);
+		offlinebutton.EnableWindow(true);
+	}
 	if(pparam == NULL){
 		pparam.reset(new Csetparam(this));
 		pparam -> Create(IDD_DIALOG4);
@@ -239,11 +275,11 @@ void CDcmapp3Dlg::OnBnClickedButton9()
 		pparam -> MoveWindow(pos);
 	}
 	pparam -> ShowWindow(SW_SHOW);
-	if(login_state){
+	if(login_state)
 		pparam -> GetDlgItem(IDC_BUTTON7) -> ShowWindow(SW_SHOW);
-	}
 	else
 		pparam -> GetDlgItem(IDC_BUTTON7) -> ShowWindow(SW_HIDE);
+	setbutton.EnableWindow(false);
 }
 
 
@@ -261,17 +297,20 @@ void CDcmapp3Dlg::OnBnClickedButton4()
 		login_state = false;
 		AfxMessageBox(L"注销成功");
 		login_button.SetWindowTextW(L"登录");
+		welcome.SetWindowTextW(L"");
+		if(pparam != nullptr)
+		pparam -> GetDlgItem(IDC_BUTTON7) -> ShowWindow(SW_HIDE);
 		return;
 	}
 	else{
-		CLogin login = new CLogin();
+		CLogin login = new CLogin(); 
 		login.DoModal();
 		if(login_state){
 			login_button.SetWindowTextW(L"注销");
-			welcome.SetWindowTextW(L"你好  "+username);
+			welcome.SetWindowTextW(L"你好 , "+username);	
+			if(pparam != nullptr)
+				pparam -> GetDlgItem(IDC_BUTTON7) -> ShowWindow(SW_SHOW);
 		}
 	}
 	// TODO: 在此添加控件通知处理程序代码
 }
-
-

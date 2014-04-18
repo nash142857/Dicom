@@ -10,6 +10,7 @@
 #include "CalParam.h"
 #include <map>
 #include "common.h"
+using namespace CommonLib;
 // Csetparam 对话框
 std::string const Csetparam::paramfilename =  "parameter.txt";
 map <string, string> Csetparam::explain;
@@ -131,6 +132,7 @@ BEGIN_MESSAGE_MAP(Csetparam, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON7, &Csetparam::OnBnClickedButton7)
 	ON_BN_CLICKED(IDC_BUTTON2, &Csetparam::OnBnClickedButton2)
 	ON_WM_MOUSEMOVE()
+	ON_BN_CLICKED(IDC_BUTTON3, &Csetparam::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -161,6 +163,9 @@ BOOL Csetparam::OnInitDialog()
 
 void Csetparam::OnBnClickedButton7()
 {
+	
+	AfxMessageBox(L"保存成功");
+	/*
 	UpdateData(true);
 	try{
 		ofstream out(paramfilename);
@@ -176,8 +181,7 @@ void Csetparam::OnBnClickedButton7()
 	catch(...){
 		AfxMessageBox(L"保存错误");
 	}
-
-
+	*/
 }
 
 
@@ -196,6 +200,8 @@ void Csetparam::OnBnClickedButton2()
 
 void Csetparam::OnMouseMove(UINT nFlags, CPoint point)
 {
+	static CWnd * lastvisit = nullptr;// last visited term to avoid move 
+	// lastvisit is used to avoid frequently update explain label
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	CWnd * child = this -> GetWindow(GW_CHILD);
 	
@@ -217,6 +223,7 @@ void Csetparam::OnMouseMove(UINT nFlags, CPoint point)
 				res[i] = res[i] +'a' - 'A';
 			}
 		}
+
 		if(explain.find(res) != explain.end()){
 			if(point.x >= rect.left && point.x <= rect.right
 				&& point.y <= rect.bottom && point.y >= rect.top){	
@@ -228,8 +235,12 @@ void Csetparam::OnMouseMove(UINT nFlags, CPoint point)
 							DEFAULT_QUALITY,DEFAULT_PITCH|FF_DONTCARE,L"Courier New"); 
 						explain_label -> SetFont(font, false);
 					}
-					explain_label -> SetWindowTextW(string_to_lpsctr(explain[res]));
-					explain_label -> MoveWindow(point.x - standardrect.left, point.y - standardrect.top,  100, 50);
+					if(lastvisit != child){
+						explain_label -> MoveWindow(rect.right - standardrect.left, 
+							rect.bottom - standardrect.top,  100, 50);
+						lastvisit = child;
+						explain_label -> SetWindowTextW(CommonLib::string_to_lpsctr(explain[res]));
+					}
 					explain_label -> ShowWindow(true);
 					CDialogEx::OnMouseMove(nFlags, point);
 					return;
@@ -241,4 +252,16 @@ void Csetparam::OnMouseMove(UINT nFlags, CPoint point)
 		explain_label -> ShowWindow(false);
 	}
 	CDialogEx::OnMouseMove(nFlags, point);
+}
+
+
+void Csetparam::OnBnClickedButton3()
+{
+	update_input();
+	setconfig();
+	AfxMessageBox(L"参数设置成功, 你可以进行下一步的计算了O(∩_∩)O");
+	// TODO: 在此添加控件通知处理程序代码
+}
+void Csetparam::update_input(){
+
 }

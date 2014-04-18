@@ -1,5 +1,7 @@
 #pragma once
 #include "ImageMatrix.h"
+#include <vector>
+using std::vector;
 class DCMPatientInfo
 {
 private:
@@ -9,12 +11,8 @@ private:
 	double mDWIVolumn;
 	int mDWINum;
 	int mPWINum;
-	int mDWIWidth;
-	int mDWIHeight;
-	int mPWIWidth;
-	int mPWIHeight;
 	int getIndex(int imageIndex, int row, int column, int type);//得出一个点对应整体的编号
-	void floodFill(int imageIndex, int row, int column, int *count, int type);//在这个点BFS
+	void floodFill(int imageIndex, int row, int column, int *count, int type, vector <int> & res);//在这个点BFS
 	bool checkADC(int index);
 	bool checkPWI(int index);
 	bool check(int index, int type);
@@ -33,5 +31,16 @@ public:
 	}
 	double getDWIVolumn();//得到DWI的值
 	double getPWIVolumn();//得到PWI的值
+	int mDWIWidth;
+	int mDWIHeight;
+	int mPWIWidth;
+	int mPWIHeight;
+	vector < const UINT16 * > getDWIdata(){
+		vector < const UINT16 * > res;
+		for(int  i = 0; i < mDWINum; ++i){
+			res.push_back(mDWIImageList[i] -> getUint16Data());
+		}
+		return res;
+	}
 };
 

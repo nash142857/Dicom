@@ -33,6 +33,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.5.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -82,13 +83,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\DCMTK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>odbc32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;wsock32.lib;ofstd.lib;oflog.lib;dcmdata.lib;dcmimgle.lib;dcmimage.lib;ijg8.lib;ijg12.lib;ijg16.lib;dcmjpeg.lib;dcmnet.lib;dcmdsig.lib;dcmsr.lib;dcmtls.lib;dcmpstat.lib;dcmwlm.lib;dcmqrdb.lib;dcmtkeay.lib;dcmtkssl.lib;iconv.lib;libtiff.lib;libpng.lib;libxml2.lib;zlib.lib;odbc32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\DCMTK\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -108,11 +112,15 @@
     <ClInclude Include="ADOConn.h" />
     <ClInclude Include="Autoinit.h" />
     <ClInclude Include="CalParam.h" />
+    <ClInclude Include="Cnamesavefile.h" />
     <ClInclude Include="Cofflinedeal.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="Conlinedeal.h" />
     <ClInclude Include="Csetparam.h" />
+    <ClInclude Include="Cshowhelp.h" />
     <ClInclude Include="Cshowperson.h" />
+    <ClInclude Include="Cshowsavepic.h" />
+    <ClInclude Include="Cshowsavpiclocal.h" />
     <ClInclude Include="Dcmapp3.h" />
     <ClInclude Include="Dcmapp3Dlg.h" />
     <ClInclude Include="DCMConst.h" />
@@ -131,11 +139,15 @@
   <ItemGroup>
     <ClCompile Include="ADOConn.cpp" />
     <ClCompile Include="Autoinit.cpp" />
+    <ClCompile Include="Cnamesavefile.cpp" />
     <ClCompile Include="Cofflinedeal.cpp" />
     <ClCompile Include="common.cpp" />
     <ClCompile Include="Conlinedeal.cpp" />
     <ClCompile Include="Csetparam.cpp" />
+    <ClCompile Include="Cshowhelp.cpp" />
     <ClCompile Include="Cshowperson.cpp" />
+    <ClCompile Include="Cshowsavepic.cpp" />
+    <ClCompile Include="Cshowsavpiclocal.cpp" />
     <ClCompile Include="Dcmapp3.cpp" />
     <ClCompile Include="Dcmapp3Dlg.cpp" />
     <ClCompile Include="DCMDisplayUtil.cpp" />
@@ -160,6 +172,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.5.targets" />
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
