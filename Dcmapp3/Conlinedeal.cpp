@@ -110,26 +110,29 @@ void Conlinedeal::OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult)
 			string id = str.GetBuffer(0);
 			str.ReleaseBuffer();
 			Patient_information res = con -> search(id,0);
-			CShowCalProcess cal;
+		/*	CShowCalProcess cal;
 			cal.DoModal();
 			if(CShowCalProcess::finished){// shared  variable
 				// update the database
-				SYSTEMTIME now;
+			*/	SYSTEMTIME now;
 				GetLocalTime(&now);
 				CTime cnowtime(int(now.wYear), int(now.wMonth),int(now.wDay), int(now.wHour),int(now.wMinute), int(now.wSecond));   
 				std::shared_ptr <ADOConn> singleton = ADOConn::sharedSingleton();
 				singleton -> update_checktime(id , cnowtime);
 				//to show person
 				shared_ptr <DCMPatientInfo> show_patient = CommonLib::get_patient_info(res);		
+				show_patient -> resetconfig();
+				show_patient -> getDWIVolumn();
 				Cshowperson p = Cshowperson();
 				p.setdata(show_patient, id);
 				p.DoModal();
-			}
+				//Cshowsavepic pp = Cshowsavepic();
+				//pp.DoModal();
 			return;
 		}
 	}
 	AfxMessageBox(L"请选中一项");
-	*pResult = 0;
+	pResult = 0;
 }
 
 int CALLBACK comparemethod(LPARAM a, LPARAM b, LPARAM pa){

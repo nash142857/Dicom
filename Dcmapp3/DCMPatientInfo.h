@@ -18,10 +18,19 @@ private:
 	bool check(int index, int type);
 	bool volumnCompare(Float64 unitVolumn, int pixelCount, int type);
 	DCMPatientInfo(void);
+	void cutpoint(vector <int> & vt, int type);
+	int cutadcfloor();//cut the discrete point
+	int cutpointnum;
+	int maxadc;
 public:
 	ImageMatrix** mDWIImageList;
 	ImageMatrix** mPWIImageList;
 	~DCMPatientInfo(void);
+	void resetconfig(int _cutpointnum = 0, int _maxadc = 600){
+		cutpointnum = _cutpointnum;
+		maxadc = _maxadc;
+		mPWIVolumn = mDWIVolumn = -1;
+	}
 	DCMPatientInfo(DcmDataset** DWIDataSet, const int& DWICount, DcmDataset** PWIDataSet, const int& PWICount);
 	CString getID(){
 		return mPatientID;

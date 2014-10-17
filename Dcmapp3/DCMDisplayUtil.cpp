@@ -9,6 +9,7 @@ DCMDisplayUtil::DCMDisplayUtil(void)
 
 DCMDisplayUtil::~DCMDisplayUtil(void)
 {
+
 }
 
 void DCMDisplayUtil::displayMatrix(CDC* pDC, ImageMatrix* imgMatrix, int x, int y, double size, bool isReverse)

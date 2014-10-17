@@ -14,6 +14,8 @@ IMPLEMENT_DYNAMIC(Cshowperson, CDialogEx)
 Cshowperson::Cshowperson(CWnd* pParent /*=NULL*/)
 	: CDialogEx(Cshowperson::IDD, pParent)
 	, dwivalue(0)
+	, cutnum(0)
+	, adc_threshold(0)
 {
 
 }
@@ -28,6 +30,10 @@ void Cshowperson::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PIC_STATIC, picdata2);
 	DDX_Control(pDX, IDC_NUM_STATIC, show_num_static);
 	DDX_Text(pDX, IDC_ADC_1, dwivalue);
+	DDX_Text(pDX, IDC_EDIT_12, cutnum);
+	DDX_Text(pDX, IDC_EDIT_13, adc_threshold);
+	DDX_Control(pDX, IDC_SLIDER1, cut_slider);
+	DDX_Control(pDX, IDC_SLIDER2, adc_slider);
 }
 
 
@@ -53,9 +59,11 @@ END_MESSAGE_MAP()
 BOOL Cshowperson::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+	cut_slider.SetRange(0, 100);
+	cut_slider.SetPos(0);
+	adc_slider.SetRange(0, 100);
+	adc_slider.SetPos(50);
 	SetWindowText(CommonLib::string_to_lpsctr("病人" + id));
-	
-
 	double pwivalue = (int)((patient_data -> getPWIVolumn()) * 100);
 	pwivalue /= 100;
 	dwivalue = (int)((patient_data -> getDWIVolumn()) * 100);
@@ -69,13 +77,57 @@ BOOL Cshowperson::OnInitDialog()
 	nowshowwhat = "ADC";
 	UpdateData(false);
 	update_menu();
-
 	/*****store_pic******/
+
+	int mohu = 2;
 	vector <const UINT16 *> store_data =  patient_data -> getDWIdata();
+	/*vector <UINT16 *>
+	for(int i = 0; i < store_data.size(); ++i){
+		UINT16 * tmp = new UINT16[patient_data -> mDWIWidth * patient_data -> mDWIHeight];
+		for(int j = 0; j < patient_data -> mDWIHeight; ++j)
+			for(int k = 0; k < patient_data -> mDWIWidth; ++k){
+				if(j - mohu >= 0 && j + mohu < patient_data -> mDWIHeight &&
+					k - mohu >= 0 && k + mohu < patient_data -> mDWIWidth	){
+						for(int o1 = -mohu; o1 <= mohu; ++o1){
+							for(int o2 = -mohu; o2 <= mohu; ++o2){
+								
+							}
+						}
+				}
+				else{
+					tmp[j * patient_data -> mDWIWidth + k] = store_data[i] = 
+				}
+			}
+	}
+	*/
+	const int margin = 50;
+	int totalrow =  margin * 5 + patient_data -> mDWIHeight * 4;
+	int totalcol = margin * 6 + patient_data -> mDWIWidth * 5;
+	int size = totalrow * totalcol;
+	UINT16 * total = new UINT16[size];
+	for(int i = 0; i < size; ++i)
+		total[i] = 600;
+	byte * data = new byte[3 * patient_data -> mDWIWidth * patient_data -> mDWIHeight];
 	for(int i = 0; i < store_data.size(); ++i){
 		CommonLib::generate_bmp("E:\\research\\" + CommonLib::ito_string(i) + ".bmp", patient_data -> mDWIHeight,
-			patient_data -> mDWIWidth, store_data[i], 10000);
+			patient_data -> mDWIWidth, store_data[i],data,10000);
+		int row = i / 5;
+		int col = i % 5;
+		int baserow = row * patient_data -> mDWIHeight + (row + 1) * margin;
+		int basecol = col * patient_data -> mDWIWidth + (col + 1) * margin;
+		for(int j = 0; j < patient_data -> mDWIWidth * patient_data -> mDWIHeight; ++j){
+			int row1 = j / patient_data -> mDWIWidth;
+			int col1 = j % patient_data -> mDWIWidth;
+			int pos = (baserow + row1) * totalcol + basecol + col1;
+			total[pos] = store_data[int(store_data.size()) - i - 1][j];
+		}
 	}
+	delete [] data;
+	data = new byte[3 * totalrow * totalcol];
+	CommonLib::generate_bmp("E:\\research\\total.bmp", totalrow,
+		totalcol, total,data,10000);//generate total
+	delete [] data;
+	delete [] total;
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -88,34 +140,6 @@ void Cshowperson::OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult)
 	// TODO: 在此添加控件通知处理程序代码
 	*pResult = 0;
 }
-
-
-void Cshowperson::OnPaint()
-{
-	/*
-	CPaintDC dc(this); // device context for painting
-	CImage img;
-	//choose img to show
-	{
-		CString str;
-		if(nowshowwhat == "MTT")
-			str.Format(L"E:\\vs2012\\Dcmapp3\\Dcmapp3\\MTT\\MTT_%d.jpg", numofpic);
-		else
-			str.Format(L"E:\\vs2012\\Dcmapp3\\Dcmapp3\\ADC\\ADC_%d.jpg", numofpic);
-		img.Load(str);
-	}
-	CRect rect;
-	picdata2.GetClientRect(&rect);
-	CDC * pdc = picdata2.GetDC();
-	pdc -> SetROP2(R2_NOTXORPEN);
-	SetStretchBltMode(pdc -> m_hDC, STRETCH_HALFTONE);
-	int width = img.GetWidth();
-	int height = img.GetHeight();
-	img.StretchBlt(pdc -> m_hDC, rect, SRCCOPY);    // 适应画的区域的大小
-	ReleaseDC(pdc);
-	*/
-}
-
 
 void Cshowperson::OnBnClickedButton2()
 {

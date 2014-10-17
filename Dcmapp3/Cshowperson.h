@@ -6,6 +6,7 @@
 // Cshowperson 对话框
 #include "Cshowsavpiclocal.h"
 #include "common.h"
+#include "afxcmn.h"
 // Cshowperson 对话框
 class Cshowperson : public CDialogEx
 {
@@ -31,7 +32,6 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnPaint();
 private:
 	int numofpic;
 	int totalpic;
@@ -46,7 +46,6 @@ private:
 		toshow.Format(L"第 %d / %d 张",numofpic, totalpic);
 		show_num_static.SetWindowTextW(toshow);
 		OnPaint();
-		
 	}
 	void update_menu(){ // to update menu version
 		if(!PathIsDirectory(CommonLib::string_to_lpsctr("E:\\dicom_data\\" + id))){
@@ -78,4 +77,8 @@ public:
 	CStatic picdata;
 	CStatic picdata2;
 	double dwivalue;
+	int cutnum;
+	double adc_threshold;
+	CSliderCtrl cut_slider;
+	CSliderCtrl adc_slider;
 };

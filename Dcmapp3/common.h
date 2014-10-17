@@ -19,6 +19,8 @@ namespace CommonLib{
 	CTime string_to_ctime(const std::string & standard);
 	std::shared_ptr <DCMPatientInfo> get_patient_info(const Patient_information & patient_data);
 	double setbit(double a);
-	bool generate_bmp(const std::string & pathname, int height, int width, const UINT16 * p, int judgevalue = -1);
+	bool generate_bmp(const std::string & pathname, int height, 
+		int width, const UINT16 * p,
+		byte * rgb,int judgevalue = -1);
 	//default show normal judgevalue = -1
 }

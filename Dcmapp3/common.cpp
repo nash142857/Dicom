@@ -161,17 +161,11 @@ bool store_bmp(const std::string & pathname, int height, int width, BYTE * p){
 	fwrite(&bih, 1, sizeof(BITMAPINFOHEADER), fp);
 	fwrite(p, 1, datasz, fp);
 	fclose(fp);
+	return true;
 }
 
-bool CommonLib::generate_bmp(const std::string & pathname, int height, int width, const UINT16 * p, int judgevalue){
-	struct bmpsturct{
-		BYTE r;
-		BYTE g;
-		BYTE b;
-	};
-	bmpsturct * data  = new bmpsturct[height * width];
+bool CommonLib::generate_bmp(const std::string & pathname, int height, int width, const UINT16 * p, byte * data, int judgevalue){
 	int minvalue = -1, maxvalue = -1;
-
 	for(int i = 0; i < height * width; ++i){
 		if(minvalue == -1 || p[i] < minvalue)
 			minvalue = p[i];
@@ -180,15 +174,16 @@ bool CommonLib::generate_bmp(const std::string & pathname, int height, int width
 	}
 	int rangevalue = maxvalue - minvalue;
 	for(int i = 0; i < height * width; ++i){
-		int reverse_i = (width - 1 - (i / width)) * height + (i % height);
+		int reverse_i = (height - 1 - (i / width)) * width + (i % width);
 		if(p[reverse_i] == judgevalue){
-			data[i].r = 255;
-			data[i].b = data[i].g = 0;
+			data[3 * i] = 255;
+			data[3 * i + 1] = data[3 * i + 2] = 0;
 		}
 		else{
 			//the bmp pic is reverse
-			data[i].b = data[i].g = data[i].r = 1.0 * 255 * (p[reverse_i] - minvalue) / rangevalue;
+			data[3 * i] = data[3 * i + 1] = data[3 * i + 2] = 1.0 * 255 * (p[reverse_i] - minvalue) / rangevalue;
 		}
 	}
-	return store_bmp(pathname, height, width, (BYTE *) data);
+	bool flag = store_bmp(pathname, height, width, data);
+	return flag;
 }
